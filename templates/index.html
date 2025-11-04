@@ -1,0 +1,38 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💖 Calculadora Barbie de Raízes</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <h1>💖 Calculadora Barbie de Raízes</h1>
+
+    <form id="calcForm">
+      <label>Função (use 'x'):</label>
+      <input id="funcao" type="text" value="x**3 - 2*x - 5" required />
+
+      <div class="row">
+        <div class="col">
+          <label>a</label>
+          <input id="a" type="number" step="any" value="1" required />
+        </div>
+        <div class="col">
+          <label>b</label>
+          <input id="b" type="number" step="any" value="3" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn">💅 Calcular</button>
+    </form>
+
+    <section id="resultado" class="resultado" aria-live="polite"></section>
+    <footer class="footer">Tema: Barbie • Métodos: Falsa Posição & Secante</footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
