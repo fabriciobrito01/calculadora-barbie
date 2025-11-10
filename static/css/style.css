@@ -1,4 +1,4 @@
-/* static/css/style.css */
+/* ... (manter os estilos anteriores do :root, body, container, inputs, btns) ... */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root{
@@ -17,10 +17,12 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
+  padding: 20px; /* Adicionado padding para telas menores */
 }
 
 .container{
-  width: 380px;
+  width: 100%;
+  max-width: 900px; /* Aumentei a largura máxima para caber a tabela */
   background: white;
   padding: 28px;
   border-radius: 18px;
@@ -29,53 +31,55 @@ body{
   text-align: center;
 }
 
-h1{
-  margin: 0 0 12px;
-  font-size: 1.4rem;
-  letter-spacing: 0.5px;
-  text-shadow: 1px 1px 0 rgba(255,204,231,0.9);
-}
-
+/* ... (h1, label, inputs, row, col, btn iguais ao anterior) ... */
+h1{ margin: 0 0 12px; font-size: 1.4rem; letter-spacing: 0.5px; text-shadow: 1px 1px 0 rgba(255,204,231,0.9); }
 label{ display:block; text-align:left; font-weight:600; margin-top:8px; color: #b30d58; }
-
-input[type="text"], input[type="number"]{
-  width:100%;
-  padding:10px 12px;
-  margin-top:6px;
-  border-radius:10px;
-  border:2px solid rgba(224,33,138,0.25);
-  outline:none;
-  font-size: 0.95rem;
-}
-
+input[type="text"], input[type="number"], select { width:100%; padding:10px 12px; margin-top:6px; border-radius:10px; border:2px solid rgba(224,33,138,0.25); outline:none; font-size: 0.95rem; background-color: white; color: var(--barbie-pink); }
 .row{ display:flex; gap:10px; margin-top:8px; }
 .col{ flex:1; }
-
-.btn{
-  margin-top:14px;
-  width:100%;
-  padding:10px;
-  border-radius:12px;
-  background: linear-gradient(180deg, var(--barbie-pink) 0%, #d1197b 100%);
-  color:white;
-  border:none;
-  font-weight:700;
-  cursor:pointer;
-  box-shadow: 0 8px 18px rgba(224,33,138,0.18);
-  transition: transform 0.12s ease, box-shadow 0.12s;
-}
-
+.btn{ margin-top:14px; width:100%; padding:10px; border-radius:12px; background: linear-gradient(180deg, var(--barbie-pink) 0%, #d1197b 100%); color:white; border:none; font-weight:700; cursor:pointer; box-shadow: 0 8px 18px rgba(224,33,138,0.18); transition: transform 0.12s ease, box-shadow 0.12s; }
 .btn:hover{ transform: translateY(-3px); box-shadow: 0 12px 26px rgba(224,33,138,0.25); }
+.footer{ margin-top:12px; font-size:0.8rem; color:#b30d58; }
 
-.resultado{
-  margin-top:18px;
-  background: #fff0f7;
-  border-radius:10px;
-  padding:12px;
-  border:1px solid #ffd3ea;
-  color:#a60d5f;
-  text-align:left;
-  min-height:48px;
+/* --- Novos estilos para os resultados e tabela --- */
+.resultado {
+    margin-top: 25px;
+    text-align: left;
+}
+.erro-msg { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; }
+.status-msg { color: #b30d58; font-style: italic; margin-bottom: 10px; }
+.raiz-destaque { font-size: 1.2em; color: var(--barbie-pink); margin-bottom: 15px; }
+
+.tabela-container {
+    overflow-x: auto; /* Permite rolagem horizontal se a tabela for grande */
+    margin-top: 15px;
+    border-radius: 10px;
+    border: 2px solid var(--barbie-pink-light);
 }
 
-.footer{ margin-top:12px; font-size:0.8rem; color:#b30d58; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Evita quebra de linha nas células */
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #ffd6eb;
+}
+
+th {
+    background-color: var(--barbie-pink-light);
+    color: #b30d58;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: #fff5fa;
+}
+
+tr:hover {
+    background-color: #ffeef9;
+}

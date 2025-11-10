@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,17 +11,38 @@
     <h1>💖 Calculadora Barbie de Raízes</h1>
 
     <form id="calcForm">
-      <label>Função (use 'x'):</label>
+      <!-- Seleção de Método -->
+      <label for="metodo">Método:</label>
+      <select id="metodo" required>
+        <option value="falsa_posicao">Falsa Posição</option>
+        <option value="secante">Secante</option>
+      </select>
+
+      <!-- Função -->
+      <label for="funcao">Função (use 'x'):</label>
       <input id="funcao" type="text" value="x**3 - 2*x - 5" required />
 
+      <!-- Intervalos A e B -->
       <div class="row">
         <div class="col">
-          <label>a</label>
+          <label for="a">a (x0)</label>
           <input id="a" type="number" step="any" value="1" required />
         </div>
         <div class="col">
-          <label>b</label>
+          <label for="b">b (x1)</label>
           <input id="b" type="number" step="any" value="3" required />
+        </div>
+      </div>
+
+      <!-- Critérios de Parada (Obrigatórios) -->
+      <div class="row">
+        <div class="col">
+           <label for="tol">Tolerância</label>
+           <input id="tol" type="text" value="1e-8" placeholder="Ex: 1e-8" required />
+        </div>
+        <div class="col">
+           <label for="max_iter">Máx. Iterações</label>
+           <input id="max_iter" type="number" value="100" placeholder="Ex: 100" required />
         </div>
       </div>
 
@@ -30,7 +50,7 @@
     </form>
 
     <section id="resultado" class="resultado" aria-live="polite"></section>
-    <footer class="footer">Tema: Barbie • Métodos: Falsa Posição & Secante</footer>
+    <footer class="footer">Tema: Barbie • Métodos Numéricos</footer>
   </main>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
