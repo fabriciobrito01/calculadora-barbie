@@ -10,39 +10,52 @@
   <main class="container">
     <h1>💖 Calculadora Barbie de Raízes</h1>
 
+    <!-- Botões de Seleção de Método -->
+    <div class="metodo-selector">
+        <button type="button" class="btn-metodo active" data-metodo="falsa_posicao">Falsa Posição</button>
+        <button type="button" class="btn-metodo" data-metodo="secante">Secante</button>
+        <button type="button" class="btn-metodo" data-metodo="gauss">Eliminação de Gauss</button>
+    </div>
+
     <form id="calcForm">
-      <!-- Seleção de Método -->
-      <label for="metodo">Método:</label>
-      <select id="metodo" required>
-        <option value="falsa_posicao">Falsa Posição</option>
-        <option value="secante">Secante</option>
-      </select>
+      <!-- Campo oculto para guardar o método selecionado -->
+      <input type="hidden" id="metodo" value="falsa_posicao">
 
-      <!-- Função -->
-      <label for="funcao">Função (use 'x'):</label>
-      <input id="funcao" type="text" value="x**3 - 2*x - 5" required />
+      <!-- Campos Comuns (Raízes) -->
+      <div id="campos-raizes">
+          <label for="funcao">Função (use 'x'):</label>
+          <input id="funcao" type="text" placeholder="Ex: x**3 - 2*x - 5" />
 
-      <!-- Intervalos A e B -->
-      <div class="row">
-        <div class="col">
-          <label for="a">a (x0)</label>
-          <input id="a" type="number" step="any" value="1" required />
-        </div>
-        <div class="col">
-          <label for="b">b (x1)</label>
-          <input id="b" type="number" step="any" value="3" required />
-        </div>
+          <div class="row">
+            <div class="col">
+              <label id="label-a" for="a">a (Lim. Inferior)</label>
+              <input id="a" type="number" step="any" placeholder="Ex: 1" />
+            </div>
+            <div class="col">
+              <label id="label-b" for="b">b (Lim. Superior)</label>
+              <input id="b" type="number" step="any" placeholder="Ex: 3" />
+            </div>
+          </div>
       </div>
 
-      <!-- Critérios de Parada (Obrigatórios) -->
-      <div class="row">
+      <!-- Campos Específicos para Gauss (Exemplo inicial) -->
+      <div id="campos-gauss" style="display: none;">
+          <label for="matriz">Matriz Aumentada (separada por ; e ,):</label>
+          <textarea id="matriz" rows="4" placeholder="Ex: 3,2,-1,1; 2,-2,4,-2; -1,0.5,-1,0"></textarea>
+          <p style="font-size: 0.8em; color: #b30d58; margin-top: 5px;">
+              Digite as linhas separadas por ponto-e-vírgula (;) e os elementos por vírgula (,).
+          </p>
+      </div>
+
+      <!-- Critérios de Parada -->
+      <div class="row" id="criterios-parada">
         <div class="col">
            <label for="tol">Tolerância</label>
-           <input id="tol" type="text" value="1e-8" placeholder="Ex: 1e-8" required />
+           <input id="tol" type="text" placeholder="Ex: 1e-8" />
         </div>
         <div class="col">
            <label for="max_iter">Máx. Iterações</label>
-           <input id="max_iter" type="number" value="100" placeholder="Ex: 100" required />
+           <input id="max_iter" type="number" placeholder="Ex: 100" />
         </div>
       </div>
 

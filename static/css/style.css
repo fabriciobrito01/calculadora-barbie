@@ -1,4 +1,4 @@
-/* ... (manter os estilos anteriores do :root, body, container, inputs, btns) ... */
+/* ... (manter estilos anteriores do :root, body, container) ... */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root{
@@ -17,12 +17,12 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 20px; /* Adicionado padding para telas menores */
+  padding: 20px;
 }
 
 .container{
   width: 100%;
-  max-width: 900px; /* Aumentei a largura máxima para caber a tabela */
+  max-width: 900px;
   background: white;
   padding: 28px;
   border-radius: 18px;
@@ -31,55 +31,64 @@ body{
   text-align: center;
 }
 
-/* ... (h1, label, inputs, row, col, btn iguais ao anterior) ... */
-h1{ margin: 0 0 12px; font-size: 1.4rem; letter-spacing: 0.5px; text-shadow: 1px 1px 0 rgba(255,204,231,0.9); }
+h1{ margin: 0 0 20px; font-size: 1.6rem; letter-spacing: 0.5px; text-shadow: 1px 1px 0 rgba(255,204,231,0.9); }
+
+/* --- Novos Estilos para o Seletor de Métodos --- */
+.metodo-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    justify-content: center;
+    flex-wrap: wrap; /* Para telas pequenas */
+}
+
+.btn-metodo {
+    padding: 10px 15px;
+    border: 2px solid var(--barbie-pink-light);
+    background-color: white;
+    color: var(--barbie-pink);
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 120px;
+}
+
+.btn-metodo:hover {
+    background-color: #fff0f7;
+    border-color: var(--barbie-pink);
+}
+
+.btn-metodo.active {
+    background-color: var(--barbie-pink);
+    color: white;
+    border-color: var(--barbie-pink);
+    box-shadow: 0 4px 10px rgba(224, 33, 138, 0.3);
+}
+
+/* ... (restante dos estilos de label, input, btn, resultado, tabela iguais ao anterior) ... */
 label{ display:block; text-align:left; font-weight:600; margin-top:8px; color: #b30d58; }
-input[type="text"], input[type="number"], select { width:100%; padding:10px 12px; margin-top:6px; border-radius:10px; border:2px solid rgba(224,33,138,0.25); outline:none; font-size: 0.95rem; background-color: white; color: var(--barbie-pink); }
+input[type="text"], input[type="number"], select, textarea { 
+    width:100%; padding:10px 12px; margin-top:6px; border-radius:10px; 
+    border:2px solid rgba(224,33,138,0.25); outline:none; font-size: 0.95rem; 
+    background-color: white; color: var(--barbie-pink); font-family: inherit;
+}
+textarea { resize: vertical; }
+
 .row{ display:flex; gap:10px; margin-top:8px; }
 .col{ flex:1; }
-.btn{ margin-top:14px; width:100%; padding:10px; border-radius:12px; background: linear-gradient(180deg, var(--barbie-pink) 0%, #d1197b 100%); color:white; border:none; font-weight:700; cursor:pointer; box-shadow: 0 8px 18px rgba(224,33,138,0.18); transition: transform 0.12s ease, box-shadow 0.12s; }
+.btn{ margin-top:20px; width:100%; padding:12px; border-radius:12px; background: linear-gradient(180deg, var(--barbie-pink) 0%, #d1197b 100%); color:white; border:none; font-weight:700; cursor:pointer; box-shadow: 0 8px 18px rgba(224,33,138,0.18); transition: transform 0.12s ease, box-shadow 0.12s; font-size: 1.1rem; }
 .btn:hover{ transform: translateY(-3px); box-shadow: 0 12px 26px rgba(224,33,138,0.25); }
-.footer{ margin-top:12px; font-size:0.8rem; color:#b30d58; }
+.footer{ margin-top:25px; font-size:0.8rem; color:#b30d58; }
 
-/* --- Novos estilos para os resultados e tabela --- */
-.resultado {
-    margin-top: 25px;
-    text-align: left;
-}
+.resultado { margin-top: 25px; text-align: left; }
 .erro-msg { color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 8px; }
 .status-msg { color: #b30d58; font-style: italic; margin-bottom: 10px; }
 .raiz-destaque { font-size: 1.2em; color: var(--barbie-pink); margin-bottom: 15px; }
-
-.tabela-container {
-    overflow-x: auto; /* Permite rolagem horizontal se a tabela for grande */
-    margin-top: 15px;
-    border-radius: 10px;
-    border: 2px solid var(--barbie-pink-light);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    white-space: nowrap; /* Evita quebra de linha nas células */
-}
-
-th, td {
-    padding: 10px 12px;
-    text-align: center;
-    border-bottom: 1px solid #ffd6eb;
-}
-
-th {
-    background-color: var(--barbie-pink-light);
-    color: #b30d58;
-    font-weight: 600;
-}
-
-tr:nth-child(even) {
-    background-color: #fff5fa;
-}
-
-tr:hover {
-    background-color: #ffeef9;
-}
+.tabela-container { overflow-x: auto; margin-top: 15px; border-radius: 10px; border: 2px solid var(--barbie-pink-light); }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; white-space: nowrap; }
+th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #ffd6eb; }
+th { background-color: var(--barbie-pink-light); color: #b30d58; font-weight: 600; }
+tr:nth-child(even) { background-color: #fff5fa; }
+tr:hover { background-color: #ffeef9; }
