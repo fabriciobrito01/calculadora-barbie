@@ -3,67 +3,189 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>💖 Calculadora Barbie de Raízes</title>
+  <title>💖 Calculadora Barbie de Raízes e Sistemas</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    /* Pequeno ajuste estético direto aqui */
+    body {
+      background: #ffe4ec;
+      font-family: 'Poppins', sans-serif;
+      color: #b30d58;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(179, 13, 88, 0.2);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #b30d58;
+    }
+    .metodo-selector {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+    .btn-metodo {
+      background: #ffd6e0;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #b30d58;
+      transition: background 0.3s;
+    }
+    .btn-metodo.active {
+      background: #b30d58;
+      color: #fff;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 2px solid #ffd6e0;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    .btn {
+      width: 100%;
+      background: #b30d58;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .btn:hover {
+      background: #e63b83;
+    }
+    .row {
+      display: flex;
+      gap: 15px;
+    }
+    .col {
+      flex: 1;
+    }
+    .erro-msg {
+      background: #ffe4ec;
+      color: #b30d58;
+      border-left: 4px solid #b30d58;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 6px;
+    }
+    .resultado {
+      margin-top: 20px;
+      background: #fff8fb;
+      border-radius: 10px;
+      padding: 15px;
+      border: 2px dashed #ffd6e0;
+    }
+    .raiz-destaque {
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #b30d58;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 0.95em;
+    }
+    th, td {
+      border: 1px solid #ffd6e0;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    th {
+      background: #ffeaf0;
+    }
+    pre {
+      background: #fff1f6;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      overflow-x: auto;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #b30d58;
+    }
+  </style>
 </head>
+
 <body>
   <main class="container">
-    <h1>💖 Calculadora Barbie de Raízes</h1>
+    <h1>💖 Calculadora Barbie de Raízes e Sistemas</h1>
 
     <!-- Botões de Seleção de Método -->
     <div class="metodo-selector">
-        <button type="button" class="btn-metodo active" data-metodo="falsa_posicao">Falsa Posição</button>
-        <button type="button" class="btn-metodo" data-metodo="secante">Secante</button>
-        <button type="button" class="btn-metodo" data-metodo="gauss">Eliminação de Gauss</button>
+      <button type="button" class="btn-metodo active" data-metodo="falsa_posicao">Falsa Posição</button>
+      <button type="button" class="btn-metodo" data-metodo="secante">Secante</button>
+      <button type="button" class="btn-metodo" data-metodo="gauss">Eliminação de Gauss</button>
     </div>
 
     <form id="calcForm">
-      <!-- Campo oculto para guardar o método selecionado -->
+      <!-- Campo oculto com o método ativo -->
       <input type="hidden" id="metodo" value="falsa_posicao">
 
-      <!-- Campos Comuns (Raízes) -->
+      <!-- ===================== CAMPOS PARA RAÍZES ===================== -->
       <div id="campos-raizes">
-          <label for="funcao">Função (use 'x'):</label>
-          <input id="funcao" type="text" placeholder="Ex: x**3 - 2*x - 5" />
+        <label for="funcao">Função (use 'x'):</label>
+        <input id="funcao" type="text" placeholder="Ex: x**3 - 2*x - 5" />
 
-          <div class="row">
-            <div class="col">
-              <label id="label-a" for="a">a (Lim. Inferior)</label>
-              <input id="a" type="number" step="any" placeholder="Ex: 1" />
-            </div>
-            <div class="col">
-              <label id="label-b" for="b">b (Lim. Superior)</label>
-              <input id="b" type="number" step="any" placeholder="Ex: 3" />
-            </div>
+        <div class="row">
+          <div class="col">
+            <label id="label-a" for="a">a (Lim. Inferior)</label>
+            <input id="a" type="number" step="any" placeholder="Ex: 1" />
           </div>
+          <div class="col">
+            <label id="label-b" for="b">b (Lim. Superior)</label>
+            <input id="b" type="number" step="any" placeholder="Ex: 3" />
+          </div>
+        </div>
       </div>
 
-      <!-- Campos Específicos para Gauss (Exemplo inicial) -->
+      <!-- ===================== CAMPOS PARA GAUSS ===================== -->
       <div id="campos-gauss" style="display: none;">
-          <label for="matriz">Matriz Aumentada (separada por ; e ,):</label>
-          <textarea id="matriz" rows="4" placeholder="Ex: 3,2,-1,1; 2,-2,4,-2; -1,0.5,-1,0"></textarea>
-          <p style="font-size: 0.8em; color: #b30d58; margin-top: 5px;">
-              Digite as linhas separadas por ponto-e-vírgula (;) e os elementos por vírgula (,).
-          </p>
+        <label for="matriz">Matriz Aumentada (separada por ; e ,):</label>
+        <textarea id="matriz" rows="4" placeholder="Ex: 3,2,-1,1; 2,-2,4,-2; -1,0.5,-1,0"></textarea>
+        <p style="font-size: 0.8em; color: #b30d58; margin-top: 5px;">
+          Digite as linhas separadas por ponto-e-vírgula (;) e os elementos por vírgula (,).
+        </p>
       </div>
 
-      <!-- Critérios de Parada -->
+      <!-- ===================== CAMPOS DE PARADA (RAÍZES) ===================== -->
       <div class="row" id="criterios-parada">
         <div class="col">
-           <label for="tol">Tolerância</label>
-           <input id="tol" type="text" placeholder="Ex: 1e-8" />
+          <label for="tol">Tolerância</label>
+          <input id="tol" type="text" placeholder="Ex: 1e-8" />
         </div>
         <div class="col">
-           <label for="max_iter">Máx. Iterações</label>
-           <input id="max_iter" type="number" placeholder="Ex: 100" />
+          <label for="max_iter">Máx. Iterações</label>
+          <input id="max_iter" type="number" placeholder="Ex: 100" />
         </div>
       </div>
 
       <button type="submit" class="btn">💅 Calcular</button>
     </form>
 
+    <!-- ===================== ÁREA DE RESULTADOS ===================== -->
     <section id="resultado" class="resultado" aria-live="polite"></section>
-    <footer class="footer">Tema: Barbie • Métodos Numéricos</footer>
+
+    <footer class="footer">✨ Tema: Barbie • Métodos Numéricos ✨</footer>
   </main>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
