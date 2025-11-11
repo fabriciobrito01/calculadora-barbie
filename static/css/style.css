@@ -12,7 +12,8 @@ body{
   margin:0;
   min-height:100vh;
   font-family: 'Poppins', sans-serif;
-  background-image: url('assets/fundo-barbie.png');
+  /* Corrigido para o caminho relativo correto */
+  background-image: url('../assets/fundo-barbie.png');
   color: var(--barbie-pink);
   display:flex;
   align-items:center;
@@ -173,6 +174,7 @@ tr:hover { background-color: #ffeef9; }
   animation: shake 0.25s;
 }
 
+/* Esta é a linha 117. O 'X' está maiúsculo (correto). */
 @keyframes shake {
   0% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
@@ -188,12 +190,24 @@ tr:hover { background-color: #ffeef9; }
   color: var(--barbie-pink);
 }
 
-.tabela-gauss table tbody tr td:first-child {
+/* Tabela específica para o vetor X* */
+.tabela-vetor table {
+  width: 250px; /* Largura menor */
+  margin-left: auto;
+  margin-right: auto;
+  white-space: normal;
+}
+
+.tabela-gauss.tabela-vetor table tbody tr td:first-child {
   background-color: #ffe9f3;
   font-weight: 600;
   color: var(--barbie-pink);
+  font-family: 'Poppins', sans-serif; /* Fonte normal */
+  width: 40%; /* Largura para a coluna X_i */
 }
 
-.tabela-gauss table tbody tr td:last-child {
-  font-weight: 500;
+.tabela-gauss.tabela-vetor table tbody tr td:last-child {
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif; /* Fonte normal */
+  font-size: 1.1em;
 }

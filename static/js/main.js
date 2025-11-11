@@ -15,15 +15,18 @@ const resultadoDiv = document.getElementById('resultado');
 const matrizGridDiv = document.getElementById('matriz-grid');
 const gerarBtn = document.getElementById('gerar_matriz');
 const nRowsInput = document.getElementById('n_rows');
+const form = document.getElementById("calcForm");
 
 // === Função utilitária para limpar campos ===
 function limparCampos() {
+  // Limpa os campos específicos
   document.getElementById('funcao').value = '';
   document.getElementById('a').value = '';
   document.getElementById('b').value = '';
   document.getElementById('tol').value = '';
   document.getElementById('max_iter').value = '';
-  // limpa grade de matriz (se existir)
+  document.getElementById('n_rows').value = '3'; // Reseta para 3
+  
   if (matrizGridDiv) matrizGridDiv.innerHTML = '';
   resultadoDiv.innerHTML = '';
 }
@@ -36,7 +39,7 @@ botoesMetodo.forEach(btn => {
 
     const metodo = btn.dataset.metodo;
     inputMetodo.value = metodo;
-    limparCampos();
+    limparCampos(); // Limpa ao trocar de aba
 
     // Exibe/oculta campos conforme o método
     if (metodo === 'falsa_posicao') {
@@ -54,22 +57,14 @@ botoesMetodo.forEach(btn => {
     } else if (metodo === 'gauss') {
       camposRaizes.style.display = 'none';
       camposGauss.style.display = 'block';
-      criteriosParada.style.display = 'none'; // Gauss não usa tol/iter
-      // gera grade automaticamente se n informado
-      const nVal = nRowsInput && nRowsInput.value ? parseInt(nRowsInput.value, 10) : null;
-      if (nVal) {
-        generateMatrixGrid(Math.max(1, nVal), Math.max(2, nVal + 1));
-      } else if (matrizGridDiv) {
-        matrizGridDiv.innerHTML = '<div class="erro-msg">Informe Linhas (n) e clique em Gerar matriz.</div>';
-      }
+      criteriosParada.style.display = 'none';
+      // Gera a grade 3x4 padrão
+      generateMatrixGrid(3, 4);
     }
   });
 });
 
-// === Inicializa interface limpa ===
-limparCampos();
-
-// === Funções de geração e leitura da grade de matriz ===
+// === Funções da grade de matriz ===
 function generateMatrixGrid(n, m) {
   if (!matrizGridDiv) return;
   matrizGridDiv.innerHTML = '';
@@ -85,12 +80,14 @@ function generateMatrixGrid(n, m) {
       td.style.width = '1%';
       const input = document.createElement('input');
       input.type = 'text';
+      // Adicionando classe para estilização futura se desejar
+      // input.className = 'matrix-input';
       input.style.width = '60px';
       input.style.height = '26px';
       input.style.padding = '4px';
       input.style.fontSize = '0.9em';
       input.style.boxSizing = 'border-box';
-      input.placeholder = '';
+      input.placeholder = '0'; // Placeholder '0'
       input.dataset.row = i;
       input.dataset.col = j;
       td.appendChild(input);
@@ -121,13 +118,11 @@ function getMatrixFromGrid() {
       const inp = matrizGridDiv.querySelector(`input[data-row="${i}"][data-col="${j}"]`);
       let val = 0;
       if (inp) {
-        const txt = inp.value.trim();
-        if (txt === '') {
-          val = 0;
-        } else {
-          const parsed = parseFloat(txt.replace(',', '.'));
-          val = isNaN(parsed) ? NaN : parsed;
-        }
+        // Pega valor, troca vírgula por ponto, default para 0 se vazio
+        const txt = inp.value.trim().replace(',', '.');
+        val = (txt === '') ? 0 : parseFloat(txt);
+        // Se não for um número (ex: "abc"), retorna erro
+        if (isNaN(val)) return null; 
       }
       row.push(val);
     }
@@ -145,135 +140,71 @@ if (gerarBtn) {
   });
 }
 
+// Inicializa a interface com o método padrão (Falsa Posição) e limpa os campos
+document.addEventListener('DOMContentLoaded', () => {
+    limparCampos();
+    // Ativa a Falsa Posição visualmente e funcionalmente
+    const fpButton = document.querySelector('.btn-metodo[data-metodo="falsa_posicao"]');
+    if (fpButton) fpButton.classList.add('active');
+    
+    camposRaizes.style.display = 'block';
+    camposGauss.style.display = 'none';
+    criteriosParada.style.display = 'flex';
+    labelA.textContent = 'a (Lim. Inferior)';
+    labelB.textContent = 'b (Lim. Superior)';
+});
+
 // ============================================================
 // 🚀 Envio do formulário principal
 // ============================================================
-document.getElementById("calcForm").addEventListener("submit", async (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const metodo = inputMetodo.value;
   resultadoDiv.innerHTML = "⏳ Calculando...";
 
-  // Payload básico
+  // Monta o payload (pacote de dados) para enviar
   let payload = { metodo };
 
   // =======================================================
-  // 🧮 Caso 1: Eliminação de Gauss
+  // 🧮 Coleta e Validação dos Dados
   // =======================================================
   if (metodo === 'gauss') {
-    // exige n_rows e grade gerada (colunas = n + 1)
-    const nVal = nRowsInput && nRowsInput.value ? nRowsInput.value.trim() : '';
-    if (nVal === '') {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe Linhas (n) e clique em Gerar matriz.</div>`;
+    const nVal = nRowsInput.value;
+    if (!nVal || parseInt(nVal, 10) <= 0) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe um número de linhas (n) válido.</div>`;
       return;
     }
-
     const gridRows = getMatrixFromGrid();
-    if (!gridRows || gridRows.length === 0) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Gere a grade da matriz antes de enviar.</div>`;
+    // getMatrixFromGrid retorna null se houver valor inválido (ex: "abc")
+    if (gridRows === null) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Valor inválido na matriz. Use apenas números.</div>`;
       return;
     }
-
-    // valida valores
-    for (let i = 0; i < gridRows.length; i++) {
-      for (let j = 0; j < gridRows[i].length; j++) {
-        if (isNaN(gridRows[i][j])) {
-          resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Valor inválido na posição (${i + 1}, ${j + 1}).</div>`;
-          return;
-        }
-      }
+    if (gridRows.length === 0) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Clique em "Gerar matriz" e preencha os valores.</div>`;
+      return;
     }
-
     payload.matrix = gridRows;
+  
+  } else {
+    // Falsa Posição ou Secante
+    payload.funcao = document.getElementById("funcao").value.trim();
+    payload.a = document.getElementById("a").value;
+    payload.b = document.getElementById("b").value;
+    payload.tol = document.getElementById("tol").value.trim();
+    payload.max_iter = document.getElementById("max_iter").value;
 
-    try {
-      const res = await fetch("/gauss", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.error}</div>`;
-        return;
-      }
-
-      // === Renderização estilizada ===
-      let html = `
-        <h3>Resultado: Eliminação de Gauss</h3>
-        <div class="gauss-info">
-          <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
-          <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
-        </div>
-        <h4>Matriz Escalonada:</h4>
-      `;
-
-      // Tabela da matriz
-      if (Array.isArray(data.matriz_escalonada)) {
-        html += `<div class="tabela-gauss"><table><tbody>`;
-        data.matriz_escalonada.forEach(linha => {
-          html += `<tr>`;
-          linha.forEach(valor => {
-            html += `<td>${Number(valor).toFixed(6)}</td>`;
-          });
-          html += `</tr>`;
-        });
-        html += `</tbody></table></div>`;
-
-        // -------------------------------------------------------
-        // 🔢 Cálculo do vetor solução (retrosubstituição simples)
-        // -------------------------------------------------------
-        if (data.tipo_solucao === "Única") {
-          try {
-            const A = data.matriz_escalonada;
-            const n = A.length;
-            const m = A[0].length;
-            const sol = new Array(n).fill(0);
-
-            for (let i = n - 1; i >= 0; i--) {
-              let soma = 0;
-              for (let j = i + 1; j < n; j++) {
-                soma += A[i][j] * sol[j];
-              }
-              sol[i] = A[i][m - 1] - soma;
-            }
-
-            html += `<h4>Vetor Solução:</h4><div class="tabela-gauss"><table><tbody>`;
-            sol.forEach((x, i) => {
-              html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
-            });
-            html += `</tbody></table></div>`;
-          } catch (e) {
-            console.warn("Falha ao calcular vetor solução:", e);
-          }
-        }
-      }
-
-      resultadoDiv.innerHTML = html;
-      return;
-    } catch (err) {
-      console.error(err);
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
+    // Validação dos campos de raízes
+    if (!payload.funcao || !payload.a || !payload.b || !payload.tol || !payload.max_iter) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Preencha todos os campos.</div>`;
       return;
     }
   }
 
   // =======================================================
-  // 🔁 Caso 2: Métodos Iterativos (Falsa Posição, Secante)
+  // 🚀 Chamada ÚNICA para o Backend (rota /calcular)
   // =======================================================
-  payload.funcao = document.getElementById("funcao").value.trim();
-  payload.a = document.getElementById("a").value;
-  payload.b = document.getElementById("b").value;
-  payload.tol = document.getElementById("tol").value.trim();
-  payload.max_iter = document.getElementById("max_iter").value;
-
-  if (!payload.funcao || !payload.a || !payload.b || !payload.tol || !payload.max_iter) {
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Preencha todos os campos.</div>`;
-    return;
-  }
-
   try {
     const res = await fetch("/calcular", {
       method: "POST",
@@ -283,55 +214,91 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    if (!res.ok || data.erro) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.erro || data.erro_msg}</div>`;
+    // O servidor respondeu com erro (ex: 400)
+    if (!res.ok) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.erro || 'Erro desconhecido do servidor.'}</div>`;
       return;
     }
 
     // ===================================================
-    // 🧾 Renderização dos métodos iterativos
+    // 🧾 Renderização dos resultados
     // ===================================================
     let html = `<h3>Resultados: ${data.metodo_nome}</h3>`;
     if (data.msg) html += `<p class="status-msg">${data.msg}</p>`;
-    if (data.raiz !== null && data.raiz !== undefined) {
-      html += `<p class="raiz-destaque">Resultado: <strong>${Number(data.raiz).toFixed(8)}</strong></p>`;
-    }
 
-    if (data.historico && data.historico.length > 0) {
-      html += `
-        <div class="tabela-container">
-          <table>
-            <thead>
-              <tr>
-                <th>I</th>
-                <th>${metodo === 'secante' ? 'x_{i-1}' : 'A'}</th>
-                <th>${metodo === 'secante' ? 'x_i' : 'B'}</th>
-                <th>${metodo === 'secante' ? 'x_{i+1}' : 'Xi'}</th>
-                <th>f(...)</th>
-                <th>Erro Rel. (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-      data.historico.forEach(iter => {
+    // Caso: Gauss
+    if (metodo === 'gauss') {
         html += `
-          <tr>
-            <td>${iter.iteracao}</td>
-            <td>${iter.a.toFixed(6)}</td>
-            <td>${iter.b.toFixed(6)}</td>
-            <td style="font-weight:bold; color: var(--barbie-pink);">${iter.xi.toFixed(6)}</td>
-            <td>${iter.fxi.toExponential(2)}</td>
-            <td>${(iter.erro_rel * 100).toFixed(4)}%</td>
-          </tr>
+          <div class="gauss-info">
+            <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
+            <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
+          </div>
         `;
-      });
-      html += `</tbody></table></div>`;
+        
+        // MOSTRA O VETOR SOLUÇÃO X*
+        if (data.vetor_solucao && data.vetor_solucao.length > 0) {
+             html += `<h4>A solução do sistema é (X*):</h4>
+                      <div class="tabela-gauss tabela-vetor">
+                        <table><tbody>`;
+             data.vetor_solucao.forEach((x, i) => {
+                html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
+             });
+             html += `</tbody></table></div>`;
+        }
+        
+        html += `<h4>Matriz Escalonada (Gauss-Jordan):</h4>`;
+        if (Array.isArray(data.matriz_escalonada)) {
+            html += `<div class="tabela-gauss"><table><tbody>`;
+            data.matriz_escalonada.forEach(linha => {
+              html += `<tr>`;
+              // Formata os números
+              linha.forEach(valor => html += `<td>${Number(valor).toFixed(4)}</td>`);
+              html += `</tr>`;
+            });
+            html += `</tbody></table></div>`;
+        }
+    
+    // Caso: Métodos Iterativos
+    } else {
+        if (data.raiz !== null && data.raiz !== undefined) {
+          html += `<p class="raiz-destaque">Resultado: <strong>${Number(data.raiz).toFixed(8)}</strong></p>`;
+        }
+        if (data.historico && data.historico.length > 0) {
+            html += `
+            <div class="tabela-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>I</th>
+                    <th>${metodo === 'secante' ? 'x_{i-1}' : 'A'}</th>
+                    <th>${metodo === 'secante' ? 'x_i' : 'B'}</th>
+                    <th>${metodo === 'secante' ? 'x_{i+1}' : 'Xi'}</th>
+                    <th>f(...)</th>
+                    <th>Erro Rel. (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+            `;
+            data.historico.forEach(iter => {
+                html += `
+                  <tr>
+                    <td>${iter.iteracao}</td>
+                    <td>${iter.a.toFixed(6)}</td>
+                    <td>${iter.b.toFixed(6)}</td>
+                    <td style="font-weight:bold; color: var(--barbie-pink);">${iter.xi.toFixed(6)}</td>
+                    <td>${iter.fxi.toExponential(2)}</td>
+                    <td>${(iter.erro_rel * 100).toFixed(4)}%</td>
+                  </tr>
+                `;
+            });
+            html += `</tbody></table></div>`;
+        }
     }
-
     resultadoDiv.innerHTML = html;
 
   } catch (err) {
-    console.error(err);
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
+    // Isso é o "Erro de conexão" - o fetch falhou
+    console.error("Fetch Error:", err);
+    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong> Verifique se o servidor Python (app.py) está rodando.</div>`;
   }
 });
