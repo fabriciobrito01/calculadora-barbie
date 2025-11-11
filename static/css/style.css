@@ -92,3 +92,109 @@ th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #ffd6e
 th { background-color: var(--barbie-pink-light); color: #b30d58; font-weight: 600; }
 tr:nth-child(even) { background-color: #fff5fa; }
 tr:hover { background-color: #ffeef9; }
+
+/* === Estilos Específicos da Saída de Eliminação de Gauss === */
+
+.gauss-info {
+  background: #fff5fa;
+  border: 2px dashed var(--barbie-pink-light);
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  color: var(--barbie-pink);
+  font-size: 0.95rem;
+}
+
+.gauss-info p {
+  margin: 4px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tag-solucao {
+  background: var(--barbie-pink-light);
+  color: var(--barbie-pink);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.valor {
+  color: var(--barbie-pink);
+  font-weight: bold;
+}
+
+/* === Tabela da Matriz Escalonada === */
+.tabela-gauss {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+.tabela-gauss table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid var(--barbie-pink-light);
+  box-shadow: 0 4px 12px rgba(224, 33, 138, 0.1);
+}
+
+.tabela-gauss td {
+  border: 1px solid var(--barbie-pink-light);
+  padding: 8px 10px;
+  text-align: center;
+  color: #b30d58;
+  font-family: "Courier New", monospace;
+  font-size: 0.95em;
+}
+
+.tabela-gauss tr:nth-child(even) {
+  background-color: #fff7fb;
+}
+
+/* === Efeito visual suave === */
+#resultado h3, #resultado h4 {
+  color: var(--barbie-pink);
+  margin-bottom: 8px;
+}
+
+#resultado {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.erro-msg {
+  transition: all 0.3s ease;
+  animation: shake 0.25s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+/* === Vetor Solução Estilizado === */
+#resultado h4 {
+  margin-top: 20px;
+  font-size: 1.05rem;
+  color: var(--barbie-pink);
+}
+
+.tabela-gauss table tbody tr td:first-child {
+  background-color: #ffe9f3;
+  font-weight: 600;
+  color: var(--barbie-pink);
+}
+
+.tabela-gauss table tbody tr td:last-child {
+  font-weight: 500;
+}
+

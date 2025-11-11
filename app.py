@@ -3,23 +3,21 @@ import sympy as sp
 import numpy as np
 import math
 import re
+import copy
 
 app = Flask(__name__)
 
-# ----- Funções matemáticas -----
+# =====================================================
+# FUNÇÕES MATEMÁTICAS
+# =====================================================
+
 def build_function(expr_str):
-    """
-    Converte string para função numérica.
-    """
     x = sp.Symbol('x')
-    try:
-        expr_str = expr_str.replace('^', '**')
-        expr_str = re.sub(r'\b(e)\b', 'E', expr_str) 
-        expr = sp.sympify(expr_str, evaluate=True)
-        f = sp.lambdify(x, expr, modules=["numpy", "math"])
-        return f
-    except Exception as e:
-        raise ValueError(f"Erro ao interpretar a função: {e}")
+    expr_str = expr_str.replace('^', '**')
+    expr_str = re.sub(r'\b(e)\b', 'E', expr_str)
+    expr = sp.sympify(expr_str, evaluate=True)
+    f = sp.lambdify(x, expr, modules=["numpy", "math"])
+    return f
 
 def falsa_posicao(expr_str, a, b, tol, max_iter):
     try:
@@ -138,24 +136,75 @@ def secante(expr_str, x0, x1, tol, max_iter):
     except Exception as e:
         return {'raiz': None, 'historico': [], 'erro_msg': f"Erro inesperado: {str(e)}"}
 
-# ----- Rotas -----
+def gauss_elimination(matrix):
+    n = len(matrix)
+    m = len(matrix[0])
+    A = copy.deepcopy(matrix)
+    det = 1
+
+    for i in range(n):
+        pivot = i
+        for j in range(i + 1, n):
+            if abs(A[j][i]) > abs(A[pivot][i]):
+                pivot = j
+        if abs(A[pivot][i]) < 1e-12:
+            det = 0
+            continue
+
+        if pivot != i:
+            A[i], A[pivot] = A[pivot], A[i]
+            det *= -1
+
+        det *= A[i][i]
+
+        pivot_val = A[i][i]
+        if abs(pivot_val) > 1e-12:
+            for k in range(i, m):
+                A[i][k] /= pivot_val
+
+        for j in range(i + 1, n):
+            factor = A[j][i]
+            for k in range(i, m):
+                A[j][k] -= factor * A[i][k]
+
+    tipo = "Única"
+    for i in range(n):
+        if all(abs(A[i][j]) < 1e-9 for j in range(m - 1)) and abs(A[i][-1]) > 1e-9:
+            tipo = "Inexistente"
+            det = 0
+            break
+        elif all(abs(A[i][j]) < 1e-9 for j in range(m - 1)) and abs(A[i][-1]) < 1e-9:
+            tipo = "Infinita"
+            det = 0
+            break
+
+    return A, tipo, det
+
+
+# =====================================================
+# ROTAS
+# =====================================================
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/calcular", methods=["POST"])
 def calcular():
     data = request.get_json() or {}
     expr = data.get("funcao", "").strip()
     metodo = data.get("metodo", "falsa_posicao")
-    
+
     try:
         tol_raw = data.get("tol")
-        if not tol_raw: return jsonify({"erro": "Tolerância obrigatória."}), 400
+        if not tol_raw:
+            return jsonify({"erro": "Tolerância obrigatória."}), 400
         tol = float(eval(str(tol_raw).replace('^', '**'), {"__builtins__": None}, {}))
 
         max_iter_raw = data.get("max_iter")
-        if not max_iter_raw: return jsonify({"erro": "Máx. Iterações obrigatório."}), 400
+        if not max_iter_raw:
+            return jsonify({"erro": "Máx. Iterações obrigatório."}), 400
         max_iter = int(max_iter_raw)
 
         a = float(data.get("a"))
@@ -163,7 +212,8 @@ def calcular():
     except:
         return jsonify({"erro": "Verifique os campos numéricos."}), 400
 
-    if not expr: return jsonify({"erro": "Função não informada."}), 400
+    if not expr:
+        return jsonify({"erro": "Função não informada."}), 400
 
     if metodo == "falsa_posicao":
         res = falsa_posicao(expr, a, b, tol, max_iter)
@@ -176,6 +226,30 @@ def calcular():
 
     return jsonify(res)
 
+
+@app.route('/gauss', methods=['POST'])
+def gauss_route():
+    data = request.get_json()
+    print("DEBUG Recebido do front:", data)
+    matrix = data.get('matrix')
+
+    if not matrix:
+        return jsonify({"error": "Matriz não fornecida"}), 400
+
+    try:
+        A, tipo, det = gauss_elimination(matrix)
+        return jsonify({
+            "matriz_escalonada": A,
+            "tipo_solucao": tipo,
+            "determinante": det
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# =====================================================
+# EXECUÇÃO
+# =====================================================
+
 if __name__ == "__main__":
     app.run(debug=True)
-    
