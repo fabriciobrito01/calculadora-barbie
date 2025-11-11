@@ -11,7 +11,7 @@ body{
   margin:0;
   min-height:100vh;
   font-family: 'Poppins', sans-serif;
-  background-image: url('../assets/fundo-barbie.png');
+  background-image: url('/static/css/assets/fundo-barbie.png');
   color: var(--barbie-pink);
   display:flex;
   align-items:center;
