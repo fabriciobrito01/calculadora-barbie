@@ -1,5 +1,5 @@
 // ============================================================
-// 💖 main.js — Calculadora Barbie de Raízes e Sistemas
+// 💖 main.js — Calculadora Barbie de Raízes e Sistemas (versão unificada)
 // ============================================================
 
 // === Seleção de elementos da interface ===
@@ -14,12 +14,8 @@ const resultadoDiv = document.getElementById('resultado');
 
 // === Função utilitária para limpar campos ===
 function limparCampos() {
-  document.getElementById('funcao').value = '';
-  document.getElementById('a').value = '';
-  document.getElementById('b').value = '';
-  document.getElementById('tol').value = '';
-  document.getElementById('max_iter').value = '';
-  document.getElementById('matriz').value = '';
+  const f = id => document.getElementById(id);
+  ['funcao','a','b','tol','max_iter','matriz'].forEach(id => { if (f(id)) f(id).value = ''; });
   resultadoDiv.innerHTML = '';
 }
 
@@ -64,7 +60,11 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const metodo = inputMetodo.value;
-  resultadoDiv.innerHTML = "⏳ Calculando...";
+  resultadoDiv.innerHTML = `
+    <div class="tabela-calculo loading" style="text-align:center;padding:16px;">
+      ⏳ Calculando...
+    </div>
+  `;
 
   // Payload básico
   let payload = { metodo };
@@ -73,99 +73,99 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
   // 🧮 Caso 1: Eliminação de Gauss
   // =======================================================
   if (metodo === 'gauss') {
-  const matrizTexto = document.getElementById('matriz').value.trim();
-  if (!matrizTexto) {
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe a matriz.</div>`;
-    return;
-  }
-
-  // Parser robusto
-  try {
-    const linhas = matrizTexto
-      .split(/[\n;]+/)
-      .filter(linha => linha.trim() !== "")
-      .map(linha =>
-        linha.trim().split(/[,\s]+/).map(num => parseFloat(num))
-      );
-    payload.matrix = linhas;
-  } catch (err) {
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Formato inválido de matriz.</div>`;
-    return;
-  }
-
-  try {
-    const res = await fetch("/gauss", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || data.error) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.error}</div>`;
+    const matrizTexto = document.getElementById('matriz').value.trim();
+    if (!matrizTexto) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe a matriz.</div>`;
       return;
     }
 
-    // === Renderização estilizada ===
-    let html = `
-      <h3>Resultado: Eliminação de Gauss</h3>
-      <div class="gauss-info">
-        <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
-        <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
-      </div>
-      <h4>Matriz Escalonada:</h4>
-    `;
-
-    // Tabela da matriz
-    if (Array.isArray(data.matriz_escalonada)) {
-      html += `<div class="tabela-gauss"><table><tbody>`;
-      data.matriz_escalonada.forEach(linha => {
-        html += `<tr>`;
-        linha.forEach(valor => {
-          html += `<td>${Number(valor).toFixed(6)}</td>`;
-        });
-        html += `</tr>`;
-      });
-      html += `</tbody></table></div>`;
-
-      // -------------------------------------------------------
-      // 🔢 Cálculo do vetor solução (retrosubstituição simples)
-      // -------------------------------------------------------
-      if (data.tipo_solucao === "Única") {
-        try {
-          const A = data.matriz_escalonada;
-          const n = A.length;
-          const m = A[0].length;
-          const sol = new Array(n).fill(0);
-
-          for (let i = n - 1; i >= 0; i--) {
-            let soma = 0;
-            for (let j = i + 1; j < n; j++) {
-              soma += A[i][j] * sol[j];
-            }
-            sol[i] = A[i][m - 1] - soma;
-          }
-
-          html += `<h4>Vetor Solução:</h4><div class="tabela-gauss"><table><tbody>`;
-          sol.forEach((x, i) => {
-            html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
-          });
-          html += `</tbody></table></div>`;
-        } catch (e) {
-          console.warn("Falha ao calcular vetor solução:", e);
-        }
-      }
+    // Parser robusto: divide por ; ou quebra de linha, aceita espaços
+    try {
+      const linhas = matrizTexto
+        .split(/[\n;]+/)
+        .filter(linha => linha.trim() !== "")
+        .map(linha =>
+          linha.trim().split(/[,\s]+/).map(num => parseFloat(num))
+        );
+      payload.matrix = linhas; // nome que o Flask espera
+    } catch (err) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Formato inválido de matriz.</div>`;
+      return;
     }
 
-    resultadoDiv.innerHTML = html;
-    return;
-  } catch (err) {
-    console.error(err);
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
-    return;
+    try {
+      const res = await fetch("/gauss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.error}</div>`;
+        return;
+      }
+
+      // === Renderização estilizada ===
+      let html = `
+        <h3>Resultado: Eliminação de Gauss</h3>
+        <div class="gauss-info">
+          <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
+          <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
+        </div>
+        <h4>Matriz Escalonada:</h4>
+      `;
+
+      // Tabela da matriz
+      if (Array.isArray(data.matriz_escalonada)) {
+        html += `<div class="tabela-gauss"><table><tbody>`;
+        data.matriz_escalonada.forEach(linha => {
+          html += `<tr>`;
+          linha.forEach(valor => {
+            html += `<td>${Number(valor).toFixed(6)}</td>`;
+          });
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+
+        // -------------------------------------------------------
+        // 🔢 Cálculo do vetor solução (retrosubstituição simples)
+        // -------------------------------------------------------
+        if (data.tipo_solucao === "Única") {
+          try {
+            const A = data.matriz_escalonada;
+            const n = A.length;
+            const m = A[0].length;
+            const sol = new Array(n).fill(0);
+
+            for (let i = n - 1; i >= 0; i--) {
+              let soma = 0;
+              for (let j = i + 1; j < n; j++) {
+                soma += A[i][j] * sol[j];
+              }
+              sol[i] = A[i][m - 1] - soma; // como a linha já foi normalizada no backend
+            }
+
+            html += `<h4>Vetor Solução:</h4><div class="tabela-gauss"><table><tbody>`;
+            sol.forEach((x, i) => {
+              html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+          } catch (e) {
+            console.warn("Falha ao calcular vetor solução:", e);
+          }
+        }
+      }
+
+      resultadoDiv.innerHTML = html;
+      return;
+    } catch (err) {
+      console.error(err);
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
+      return;
+    }
   }
-}
 
   // =======================================================
   // 🔁 Caso 2: Métodos Iterativos (Falsa Posição, Secante)
@@ -195,9 +195,7 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
       return;
     }
 
-    // ===================================================
     // 🧾 Renderização dos métodos iterativos
-    // ===================================================
     let html = `<h3>Resultados: ${data.metodo_nome}</h3>`;
     if (data.msg) html += `<p class="status-msg">${data.msg}</p>`;
     if (data.raiz !== null && data.raiz !== undefined) {
@@ -233,6 +231,8 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
         `;
       });
       html += `</tbody></table></div>`;
+    } else {
+      html += `<p class="status-msg">Sem histórico para exibir.</p>`;
     }
 
     resultadoDiv.innerHTML = html;

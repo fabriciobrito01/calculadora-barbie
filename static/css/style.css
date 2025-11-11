@@ -12,7 +12,7 @@ body{
   margin:0;
   min-height:100vh;
   font-family: 'Poppins', sans-serif;
-  background: var(--bg);
+  background-image: url('Blush_Wave_Desktop_Wallpaper.png');
   color: var(--barbie-pink);
   display:flex;
   align-items:center;
@@ -198,3 +198,101 @@ tr:hover { background-color: #ffeef9; }
   font-weight: 500;
 }
 
+/* Área que contém a tabela de cálculo e a tabela de resultado */
+.area-tabelas {
+  display: flex;
+  gap: 20px;
+  justify-content: center; /* quando apenas a tabela de cálculo existe ela ficará centralizada */
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 16px;
+  margin-left: 50px;
+}
+
+/* Quando houver duas colunas (tabela cálculo + resultado) */
+.area-tabelas.two-cols {
+  justify-content: space-between; /* espalha as tabelas uma em cada lado */
+}
+
+/* Tabela de cálculo (fica no meio quando única) */
+.tabela-calculo {
+  flex: 0 0 auto;
+  max-width: 48%;
+  min-width: 280px;
+}
+
+/* Resultado (lado direito quando aparecer) */
+.resultado-tabela {
+  flex: 0 0 auto;
+  max-width: 48%;
+  min-width: 260px;
+  display: block; /* será .hidden até aparecer o resultado */
+  margin-top: 16px;
+  padding: 14px;
+  background: #ffffff; /* fundo branco para não ficar transparente */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(224,33,138,0.06);
+  border: 6px solid rgba(255,204,231,0.6);
+  max-width: 100%;
+  color: #6b0636;
+}
+
+/* cabeçalho faz parte do mesmo cartão */
+.resultado-tabela h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.05rem;
+  color: #b30d58;
+  font-weight: 700;
+  border-bottom: 1px solid #ffd6eb;
+  padding-bottom: 10px;
+}
+
+/* remove fundo/borda duplicada da tabela interna para ficar integrado ao cartão */
+.resultado-tabela .tabela-container {
+  margin-top: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--barbie-pink-light);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), #fff);
+  padding: 8px;
+  overflow-x: auto;
+}
+
+/* esconder elemento (usado para iniciar invisível sem ocupar espaço) */
+.hidden { display: none !important; }
+
+/* pequena adaptação visual para quando estiver apenas a tabela de cálculo (loading) */
+.tabela-calculo.loading {
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px dashed rgba(224,33,138,0.12);
+  box-shadow: none;
+  text-align: center;
+}
+
+/* garante responsividade em telas pequenas: empilha verticalmente */
+@media (max-width: 800px) {
+  .area-tabelas, .area-tabelas.two-cols {
+    flex-direction: column;
+    align-items: center;
+  }
+  .tabela-calculo, .resultado-tabela { max-width: 100%; }
+}
+
+/* ...existing code... */
+
+/* tabela dentro do resultado */
+.resultado-tabela .tabela-container {
+  overflow-x: auto;
+  margin-top: 0;
+  border-radius: 10px;
+  border: 2px solid var(--barbie-pink-light);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), #fff);
+}
+
+.resultado-tabela table { width:100%; border-collapse: collapse; font-size:0.95rem; white-space:nowrap; background: transparent; }
+.resultado-tabela th, .resultado-tabela td { padding:10px 14px; text-align:center; border-bottom:1px solid #ffd6eb; }
+.resultado-tabela th { background-color: var(--barbie-pink-light); color:#b30d58; font-weight:700; position:sticky; top:0; z-index:2; }
+.resultado-tabela tr:nth-child(even) { background-color:#fff5fa; }
+.resultado-tabela tr:hover { background-color:#ffeef9; }
+.resultado-tabela .valor-destaque { font-weight:700; color:var(--barbie-pink); }
