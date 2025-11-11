@@ -1,3 +1,7 @@
+// ============================================================
+// 💖 main.js — Calculadora Barbie de Raízes e Sistemas
+// ============================================================
+
 const botoesMetodo = document.querySelectorAll('.btn-metodo');
 const inputMetodo = document.getElementById('metodo');
 const camposRaizes = document.getElementById('campos-raizes');
@@ -9,7 +13,6 @@ const resultadoDiv = document.getElementById('resultado');
 const matrizGridDiv = document.getElementById('matriz-grid');
 const gerarBtn = document.getElementById('gerar_matriz');
 const nRowsInput = document.getElementById('n_rows');
-const form = document.getElementById("calcForm");
 
 function limparCampos() {
   document.getElementById('funcao').value = '';
@@ -17,7 +20,8 @@ function limparCampos() {
   document.getElementById('b').value = '';
   document.getElementById('tol').value = '';
   document.getElementById('max_iter').value = '';
-  document.getElementById('n_rows').value = '3';
+  
+  if (nRowsInput) nRowsInput.value = '3'; 
   
   if (matrizGridDiv) matrizGridDiv.innerHTML = '';
   resultadoDiv.innerHTML = '';
@@ -42,17 +46,19 @@ botoesMetodo.forEach(btn => {
       camposRaizes.style.display = 'block';
       camposGauss.style.display = 'none';
       criteriosParada.style.display = 'flex';
-      labelA.textContent = 'x0 (Chute inicial 1)';
-      labelB.textContent = 'x1 (Chute inicial 2)';
+      labelA.textContent = 'x0';
+      labelB.textContent = 'x1';
     } else if (metodo === 'gauss') {
       camposRaizes.style.display = 'none';
       camposGauss.style.display = 'block';
       criteriosParada.style.display = 'none';
-      generateMatrixGrid(3, 4);
+      
     }
   });
 });
 
+
+// === Funções de geração e leitura da grade de matriz ===
 function generateMatrixGrid(n, m) {
   if (!matrizGridDiv) return;
   matrizGridDiv.innerHTML = '';
@@ -67,13 +73,13 @@ function generateMatrixGrid(n, m) {
       td.style.padding = '4px';
       td.style.width = '1%';
       const input = document.createElement('input');
-      input.type = 'text';
+      input.type = 'text'; // Alterado para 'text' para aceitar '.' e '-' facilmente
       input.style.width = '60px';
       input.style.height = '26px';
       input.style.padding = '4px';
       input.style.fontSize = '0.9em';
       input.style.boxSizing = 'border-box';
-      input.placeholder = '0';
+      input.placeholder = '0'; // Placeholder 0
       input.dataset.row = i;
       input.dataset.col = j;
       td.appendChild(input);
@@ -104,17 +110,21 @@ function getMatrixFromGrid() {
       const inp = matrizGridDiv.querySelector(`input[data-row="${i}"][data-col="${j}"]`);
       let val = 0;
       if (inp) {
+        // Pega valor, troca vírgula por ponto, default para 0 se vazio
         const txt = inp.value.trim().replace(',', '.');
-        val = (txt === '') ? 0 : parseFloat(txt);
-        if (isNaN(val)) return null; 
+        val = (txt === '' || txt === '-') ? 0 : parseFloat(txt); // Trata '-' sozinho como 0
+        if (isNaN(val)) return null; // Retorna null se 'abc' for digitado
       }
       row.push(val);
     }
     rows.push(row);
   }
-  return rows;
+  return rows; // Retorna null se houver erro de NaN
 }
 
+
+// Gerar ao clicar (m = n + 1)
+// Esta lógica está CORRETA e é a única que deve gerar a grade.
 if (gerarBtn) {
   gerarBtn.addEventListener('click', () => {
     const n = parseInt(nRowsInput.value, 10) || 1;
@@ -123,43 +133,45 @@ if (gerarBtn) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    limparCampos();
-    const fpButton = document.querySelector('.btn-metodo[data-metodo="falsa_posicao"]');
-    if (fpButton) fpButton.classList.add('active');
-    
-    camposRaizes.style.display = 'block';
-    camposGauss.style.display = 'none';
-    criteriosParada.style.display = 'flex';
-    labelA.textContent = 'a (Lim. Inferior)';
-    labelB.textContent = 'b (Lim. Superior)';
-});
-
-form.addEventListener("submit", async (e) => {
+// ============================================================
+// 🚀 Envio do formulário principal
+// ============================================================
+document.getElementById("calcForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const metodo = inputMetodo.value;
   resultadoDiv.innerHTML = "⏳ Calculando...";
 
+  // Payload básico
   let payload = { metodo };
+  let valid = true; // Flag de validação
 
+  // =======================================================
+  // 🧮 Caso 1: Eliminação de Gauss
+  // =======================================================
   if (metodo === 'gauss') {
-    const nVal = nRowsInput.value;
-    if (!nVal || parseInt(nVal, 10) <= 0) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe um número de linhas (n) válido.</div>`;
+    const nVal = nRowsInput && nRowsInput.value ? nRowsInput.value.trim() : '';
+    if (nVal === '' || parseInt(nVal, 10) <= 0) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe Linhas (n) e clique em Gerar matriz.</div>`;
       return;
     }
+
     const gridRows = getMatrixFromGrid();
-    if (gridRows === null) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Valor inválido na matriz. Use apenas números.</div>`;
-      return;
+    
+    if (gridRows === null) { 
+        resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Valor inválido na matriz. Use apenas números (ex: -0.1).</div>`;
+        return;
     }
-    if (gridRows.length === 0) {
+    
+    if (!gridRows || gridRows.length === 0) {
       resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Clique em "Gerar matriz" e preencha os valores.</div>`;
       return;
     }
     payload.matrix = gridRows;
   
+  // =======================================================
+  // 🔁 Caso 2: Métodos Iterativos (Falsa Posição, Secante)
+  // =======================================================
   } else {
     payload.funcao = document.getElementById("funcao").value.trim();
     payload.a = document.getElementById("a").value;
@@ -173,6 +185,9 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
+  // =======================================================
+  // 🚀 Envio ÚNICO para a ROTA /calcular
+  // =======================================================
   try {
     const res = await fetch("/calcular", {
       method: "POST",
@@ -183,10 +198,13 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.erro || 'Erro desconhecido do servidor.'}</div>`;
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.erro || data.erro_msg}</div>`;
       return;
     }
 
+    // ===================================================
+    // 🧾 Renderização dos métodos iterativos
+    // ===================================================
     let html = `<h3>Resultados: ${data.metodo_nome}</h3>`;
     if (data.msg) html += `<p class="status-msg">${data.msg}</p>`;
 
@@ -254,10 +272,24 @@ form.addEventListener("submit", async (e) => {
             html += `</tbody></table></div>`;
         }
     }
+    
     resultadoDiv.innerHTML = html;
 
   } catch (err) {
-    console.error("Fetch Error:", err);
+    console.error(err);
     resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong> Verifique se o servidor Python (app.py) está rodando.</div>`;
   }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    limparCampos();
+    const fpButton = document.querySelector('.btn-metodo[data-metodo="falsa_posicao"]');
+    if (fpButton) fpButton.classList.add('active');
+    
+    inputMetodo.value = 'falsa_posicao';
+    camposRaizes.style.display = 'block';
+    camposGauss.style.display = 'none';
+    criteriosParada.style.display = 'flex';
+    labelA.textContent = 'a (Lim. Inferior)';
+    labelB.textContent = 'b (Lim. Superior)';
 });

@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>💖 Calculadora Barbie de Raízes e Sistemas</title>
+  <title>Calculadora Barbie</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
   <main class="container">
-    <h1>💖 Calculadora Barbie de Raízes e Sistemas</h1>
+    <h1>💖 Calculadora Barbie de Raízes e Sistemas 💖</h1>
 
-    <!-- Botões de Seleção de Método -->
     <div class="metodo-selector">
       <button type="button" class="btn-metodo active" data-metodo="falsa_posicao">Falsa Posição</button>
       <button type="button" class="btn-metodo" data-metodo="secante">Secante</button>
@@ -19,10 +18,10 @@
     </div>
 
     <form id="calcForm">
-      <!-- Campo oculto com o método ativo -->
       <input type="hidden" id="metodo" value="falsa_posicao">
 
       <!-- ===================== CAMPOS PARA RAÍZES ===================== -->
+       
       <div id="campos-raizes">
         <label for="funcao">Função (use 'x'):</label>
         <input id="funcao" type="text" placeholder="Ex: x**3 - 2*x - 5" />
@@ -40,28 +39,27 @@
       </div>
 
       <!-- ===================== CAMPOS PARA GAUSS ===================== -->
-      <div id="campos-gauss" style="display: none;">
-        <label for="matriz">Matriz Aumentada (grade editável):</label>
 
-        <div style="display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap;">
-          <div>
-            <label for="n_rows">Linhas (n):</label>
-            <input id="n_rows" type="number" min="1" value="3" style="width:80px;" />
+      <div id="campos-gauss" style="display: none;">
+        <div class="gauss-info">
+          <p>Matriz Aumentada (grade editável):</p>
+
+          <label for="n_rows" class="label-linhas">Linhas (n):</label>
+
+          <!-- controles de linhas: input à esquerda (embaixo do label) e botão ao lado direito -->
+          <div class="linhas-controls">
+            <input id="n_rows" type="number" min="1" value="3" class="col-small" />
+            <button type="button" id="gerar_matriz" class="btn-gerar">Gerar matriz</button>
           </div>
-          <div style="font-size:0.95em; color:#b30d58; align-self:center;">
-            Colunas serão definidas automaticamente como <strong>m = n + 1</strong> (matriz aumentada).
-          </div>
-          <button type="button" id="gerar_matriz" class="btn-metodo" style="padding:6px 10px;">Gerar matriz</button>
+
+          <p class="nota">Colunas serão definidas automaticamente como m = n + 1.</p>
         </div>
 
-        <p style="font-size: 0.8em; color: #b30d58; margin-top: 8px;">
-          Preencha os quadradinhos abaixo. Deixe vazios para considerar 0. Ajuste linhas e clique em "Gerar matriz".
-        </p>
-
-        <div id="matriz-grid" style="margin-top:10px; overflow:auto; max-height:260px;"></div>
+        <div id="matriz-grid"></div>
       </div>
 
       <!-- ===================== CAMPOS DE PARADA (RAÍZES) ===================== -->
+      
       <div class="row" id="criterios-parada">
         <div class="col">
           <label for="tol">Tolerância</label>
@@ -79,7 +77,6 @@
     <!-- ===================== ÁREA DE RESULTADOS ===================== -->
     <section id="resultado" class="resultado" aria-live="polite"></section>
 
-    <footer class="footer">✨ Tema: Barbie • Métodos Numéricos ✨</footer>
   </main>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>

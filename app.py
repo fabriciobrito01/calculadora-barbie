@@ -202,8 +202,10 @@ def calcular():
     else:
         return jsonify({"erro": "Método desconhecido."}), 400
 
-    # Se 'erro' foi retornado pela função, envia como erro 400
     if 'erro' in res:
         return jsonify(res), 400
         
     return jsonify(res)
+
+if __name__ == "__main__":
+    app.run(debug=True)
