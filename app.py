@@ -4,9 +4,11 @@ import numpy as np
 import math
 import re
 import copy
+from whitenoise import WhiteNoise
 
 app = Flask(__name__)
 
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
 # =====================================================
 # FUNÇÕES MATEMÁTICAS (Falsa Posição, Secante, Gauss)
 # =====================================================
