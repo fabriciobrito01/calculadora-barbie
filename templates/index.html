@@ -160,11 +160,24 @@
 
       <!-- ===================== CAMPOS PARA GAUSS ===================== -->
       <div id="campos-gauss" style="display: none;">
-        <label for="matriz">Matriz Aumentada (separada por ; e ,):</label>
-        <textarea id="matriz" rows="4" placeholder="Ex: 3,2,-1,1; 2,-2,4,-2; -1,0.5,-1,0"></textarea>
-        <p style="font-size: 0.8em; color: #b30d58; margin-top: 5px;">
-          Digite as linhas separadas por ponto-e-vírgula (;) e os elementos por vírgula (,).
+        <label for="matriz">Matriz Aumentada (grade editável):</label>
+
+        <div style="display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap;">
+          <div>
+            <label for="n_rows">Linhas (n):</label>
+            <input id="n_rows" type="number" min="1" value="3" style="width:80px;" />
+          </div>
+          <div style="font-size:0.95em; color:#b30d58; align-self:center;">
+            Colunas serão definidas automaticamente como <strong>m = n + 1</strong> (matriz aumentada).
+          </div>
+          <button type="button" id="gerar_matriz" class="btn-metodo" style="padding:6px 10px;">Gerar matriz</button>
+        </div>
+
+        <p style="font-size: 0.8em; color: #b30d58; margin-top: 8px;">
+          Preencha os quadradinhos abaixo. Deixe vazios para considerar 0. Ajuste linhas e clique em "Gerar matriz".
         </p>
+
+        <div id="matriz-grid" style="margin-top:10px; overflow:auto; max-height:260px;"></div>
       </div>
 
       <!-- ===================== CAMPOS DE PARADA (RAÍZES) ===================== -->

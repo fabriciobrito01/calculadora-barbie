@@ -11,6 +11,10 @@ const criteriosParada = document.getElementById('criterios-parada');
 const labelA = document.getElementById('label-a');
 const labelB = document.getElementById('label-b');
 const resultadoDiv = document.getElementById('resultado');
+// elementos da grade de Gauss
+const matrizGridDiv = document.getElementById('matriz-grid');
+const gerarBtn = document.getElementById('gerar_matriz');
+const nRowsInput = document.getElementById('n_rows');
 
 // === Função utilitária para limpar campos ===
 function limparCampos() {
@@ -19,7 +23,8 @@ function limparCampos() {
   document.getElementById('b').value = '';
   document.getElementById('tol').value = '';
   document.getElementById('max_iter').value = '';
-  document.getElementById('matriz').value = '';
+  // limpa grade de matriz (se existir)
+  if (matrizGridDiv) matrizGridDiv.innerHTML = '';
   resultadoDiv.innerHTML = '';
 }
 
@@ -50,12 +55,95 @@ botoesMetodo.forEach(btn => {
       camposRaizes.style.display = 'none';
       camposGauss.style.display = 'block';
       criteriosParada.style.display = 'none'; // Gauss não usa tol/iter
+      // gera grade automaticamente se n informado
+      const nVal = nRowsInput && nRowsInput.value ? parseInt(nRowsInput.value, 10) : null;
+      if (nVal) {
+        generateMatrixGrid(Math.max(1, nVal), Math.max(2, nVal + 1));
+      } else if (matrizGridDiv) {
+        matrizGridDiv.innerHTML = '<div class="erro-msg">Informe Linhas (n) e clique em Gerar matriz.</div>';
+      }
     }
   });
 });
 
 // === Inicializa interface limpa ===
 limparCampos();
+
+// === Funções de geração e leitura da grade de matriz ===
+function generateMatrixGrid(n, m) {
+  if (!matrizGridDiv) return;
+  matrizGridDiv.innerHTML = '';
+  const table = document.createElement('table');
+  table.style.borderCollapse = 'collapse';
+  table.style.width = '100%';
+  for (let i = 0; i < n; i++) {
+    const tr = document.createElement('tr');
+    for (let j = 0; j < m; j++) {
+      const td = document.createElement('td');
+      td.style.border = '1px solid #ffd6e0';
+      td.style.padding = '4px';
+      td.style.width = '1%';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.style.width = '60px';
+      input.style.height = '26px';
+      input.style.padding = '4px';
+      input.style.fontSize = '0.9em';
+      input.style.boxSizing = 'border-box';
+      input.placeholder = '';
+      input.dataset.row = i;
+      input.dataset.col = j;
+      td.appendChild(input);
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  matrizGridDiv.appendChild(table);
+}
+
+function getMatrixFromGrid() {
+  const rows = [];
+  if (!matrizGridDiv) return rows;
+  const inputs = matrizGridDiv.querySelectorAll('input');
+  if (!inputs || inputs.length === 0) return rows;
+
+  let maxRow = 0, maxCol = 0;
+  inputs.forEach(inp => {
+    const r = parseInt(inp.dataset.row, 10);
+    const c = parseInt(inp.dataset.col, 10);
+    if (r > maxRow) maxRow = r;
+    if (c > maxCol) maxCol = c;
+  });
+
+  for (let i = 0; i <= maxRow; i++) {
+    const row = [];
+    for (let j = 0; j <= maxCol; j++) {
+      const inp = matrizGridDiv.querySelector(`input[data-row="${i}"][data-col="${j}"]`);
+      let val = 0;
+      if (inp) {
+        const txt = inp.value.trim();
+        if (txt === '') {
+          val = 0;
+        } else {
+          const parsed = parseFloat(txt.replace(',', '.'));
+          val = isNaN(parsed) ? NaN : parsed;
+        }
+      }
+      row.push(val);
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+// Gerar ao clicar (m = n + 1)
+if (gerarBtn) {
+  gerarBtn.addEventListener('click', () => {
+    const n = parseInt(nRowsInput.value, 10) || 1;
+    const m = Math.max(2, n + 1);
+    generateMatrixGrid(Math.max(1, n), m);
+  });
+}
 
 // ============================================================
 // 🚀 Envio do formulário principal
@@ -73,99 +161,104 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
   // 🧮 Caso 1: Eliminação de Gauss
   // =======================================================
   if (metodo === 'gauss') {
-  const matrizTexto = document.getElementById('matriz').value.trim();
-  if (!matrizTexto) {
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe a matriz.</div>`;
-    return;
-  }
-
-  // Parser robusto
-  try {
-    const linhas = matrizTexto
-      .split(/[\n;]+/)
-      .filter(linha => linha.trim() !== "")
-      .map(linha =>
-        linha.trim().split(/[,\s]+/).map(num => parseFloat(num))
-      );
-    payload.matrix = linhas;
-  } catch (err) {
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Formato inválido de matriz.</div>`;
-    return;
-  }
-
-  try {
-    const res = await fetch("/gauss", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || data.error) {
-      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.error}</div>`;
+    // exige n_rows e grade gerada (colunas = n + 1)
+    const nVal = nRowsInput && nRowsInput.value ? nRowsInput.value.trim() : '';
+    if (nVal === '') {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Informe Linhas (n) e clique em Gerar matriz.</div>`;
       return;
     }
 
-    // === Renderização estilizada ===
-    let html = `
-      <h3>Resultado: Eliminação de Gauss</h3>
-      <div class="gauss-info">
-        <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
-        <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
-      </div>
-      <h4>Matriz Escalonada:</h4>
-    `;
+    const gridRows = getMatrixFromGrid();
+    if (!gridRows || gridRows.length === 0) {
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Gere a grade da matriz antes de enviar.</div>`;
+      return;
+    }
 
-    // Tabela da matriz
-    if (Array.isArray(data.matriz_escalonada)) {
-      html += `<div class="tabela-gauss"><table><tbody>`;
-      data.matriz_escalonada.forEach(linha => {
-        html += `<tr>`;
-        linha.forEach(valor => {
-          html += `<td>${Number(valor).toFixed(6)}</td>`;
-        });
-        html += `</tr>`;
-      });
-      html += `</tbody></table></div>`;
-
-      // -------------------------------------------------------
-      // 🔢 Cálculo do vetor solução (retrosubstituição simples)
-      // -------------------------------------------------------
-      if (data.tipo_solucao === "Única") {
-        try {
-          const A = data.matriz_escalonada;
-          const n = A.length;
-          const m = A[0].length;
-          const sol = new Array(n).fill(0);
-
-          for (let i = n - 1; i >= 0; i--) {
-            let soma = 0;
-            for (let j = i + 1; j < n; j++) {
-              soma += A[i][j] * sol[j];
-            }
-            sol[i] = A[i][m - 1] - soma;
-          }
-
-          html += `<h4>Vetor Solução:</h4><div class="tabela-gauss"><table><tbody>`;
-          sol.forEach((x, i) => {
-            html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
-          });
-          html += `</tbody></table></div>`;
-        } catch (e) {
-          console.warn("Falha ao calcular vetor solução:", e);
+    // valida valores
+    for (let i = 0; i < gridRows.length; i++) {
+      for (let j = 0; j < gridRows[i].length; j++) {
+        if (isNaN(gridRows[i][j])) {
+          resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> Valor inválido na posição (${i + 1}, ${j + 1}).</div>`;
+          return;
         }
       }
     }
 
-    resultadoDiv.innerHTML = html;
-    return;
-  } catch (err) {
-    console.error(err);
-    resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
-    return;
+    payload.matrix = gridRows;
+
+    try {
+      const res = await fetch("/gauss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro:</strong> ${data.error}</div>`;
+        return;
+      }
+
+      // === Renderização estilizada ===
+      let html = `
+        <h3>Resultado: Eliminação de Gauss</h3>
+        <div class="gauss-info">
+          <p><strong>Tipo de solução:</strong> <span class="tag-solucao">${data.tipo_solucao}</span></p>
+          <p><strong>Determinante:</strong> <span class="valor">${Number(data.determinante).toFixed(6)}</span></p>
+        </div>
+        <h4>Matriz Escalonada:</h4>
+      `;
+
+      // Tabela da matriz
+      if (Array.isArray(data.matriz_escalonada)) {
+        html += `<div class="tabela-gauss"><table><tbody>`;
+        data.matriz_escalonada.forEach(linha => {
+          html += `<tr>`;
+          linha.forEach(valor => {
+            html += `<td>${Number(valor).toFixed(6)}</td>`;
+          });
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+
+        // -------------------------------------------------------
+        // 🔢 Cálculo do vetor solução (retrosubstituição simples)
+        // -------------------------------------------------------
+        if (data.tipo_solucao === "Única") {
+          try {
+            const A = data.matriz_escalonada;
+            const n = A.length;
+            const m = A[0].length;
+            const sol = new Array(n).fill(0);
+
+            for (let i = n - 1; i >= 0; i--) {
+              let soma = 0;
+              for (let j = i + 1; j < n; j++) {
+                soma += A[i][j] * sol[j];
+              }
+              sol[i] = A[i][m - 1] - soma;
+            }
+
+            html += `<h4>Vetor Solução:</h4><div class="tabela-gauss"><table><tbody>`;
+            sol.forEach((x, i) => {
+              html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+          } catch (e) {
+            console.warn("Falha ao calcular vetor solução:", e);
+          }
+        }
+      }
+
+      resultadoDiv.innerHTML = html;
+      return;
+    } catch (err) {
+      console.error(err);
+      resultadoDiv.innerHTML = `<div class="erro-msg"><strong>Erro de conexão.</strong></div>`;
+      return;
+    }
   }
-}
 
   // =======================================================
   // 🔁 Caso 2: Métodos Iterativos (Falsa Posição, Secante)
