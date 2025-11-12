@@ -12,11 +12,38 @@ body{
   min-height:100vh;
   font-family: 'Poppins', sans-serif;
   background-image: url('/static/css/assets/fundo-barbie.png');
-  color: var(--barbie-pink);
   display:flex;
   align-items:center;
   justify-content:center;
   padding: 20px;
+}
+
+
+@media (max-width: 1366px) {
+  body {
+    background-size: contain;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-color: #fff0f7; /* cor de fundo caso sobre espaço */
+  }
+}
+
+/* Ajustes finos do background para telas grandes (ex.: 1920x1080) */
+@media (min-width: 1440px) and (max-width: 1920px) {
+  body {
+    /* diminui a largura da imagem para caber melhor em notebooks/monitores 1920 */
+    background-size: 1400px auto;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
+}
+
+/* comportamento para telas maiores que 1920 — evita esticar demais */
+@media (min-width: 1921px) {
+  body {
+    background-size: 1600px auto; /* ajuste opcional para ultrawide/4K */
+    background-position: center top;
+  }
 }
 
 .container{
