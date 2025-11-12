@@ -1,3 +1,4 @@
+// ...existing code...
 // ============================================================
 // 💖 main.js — Calculadora Barbie de Raízes e Sistemas
 // ============================================================
@@ -136,6 +137,26 @@ if (gerarBtn) {
 // ============================================================
 // 🚀 Envio do formulário principal
 // ============================================================
+
+// Helpers de formatação seguros
+function fmtNumber(v, decimals = 6) {
+  if (v === undefined || v === null || Number.isNaN(Number(v))) return '-';
+  return Number(v).toFixed(decimals);
+}
+function fmtF(v) {
+  if (v === undefined || v === null || Number.isNaN(Number(v))) return '-';
+  const num = Number(v);
+  // Usa notação exponencial para valores muito grandes/pequenos, senão fixa em 6 casas
+  if (num !== 0 && (Math.abs(num) < 1e-3 || Math.abs(num) >= 1e4)) {
+    return num.toExponential(2);
+  }
+  return num.toFixed(6);
+}
+function fmtPercent(v) {
+  if (v === undefined || v === null || Number.isNaN(Number(v))) return '-';
+  return (Number(v) * 100).toFixed(4) + '%';
+}
+
 document.getElementById("calcForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -221,7 +242,7 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
                       <div class="tabela-gauss tabela-vetor">
                         <table><tbody>`;
              data.vetor_solucao.forEach((x, i) => {
-                html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${x.toFixed(6)}</td></tr>`;
+                html += `<tr><td><strong>x<sub>${i + 1}</sub></strong></td><td>${Number(x).toFixed(6)}</td></tr>`;
              });
              html += `</tbody></table></div>`;
         }
@@ -242,33 +263,34 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
           html += `<p class="raiz-destaque">Resultado: <strong>${Number(data.raiz).toFixed(8)}</strong></p>`;
         }
         if (data.historico && data.historico.length > 0) {
-            html += `
-            <div class="tabela-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>I</th>
-                    <th>${metodo === 'secante' ? 'x_{i-1}' : 'A'}</th>
-                    <th>${metodo === 'secante' ? 'x_i' : 'B'}</th>
-                    <th>${metodo === 'secante' ? 'x_{i+1}' : 'Xi'}</th>
-                    <th>f(...)</th>
-                    <th>Erro Rel. (%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-            `;
+            html += `<div class="tabela-container"><table><thead>
+                <tr>
+                  <th>I</th>
+                  <th>A</th>
+                  <th>B</th>
+                  <th>Xi</th>
+                  <th>f(A)</th>
+                  <th>f(B)</th>
+                  <th>f(Xi)</th>
+                  <th>Erro Rel. (%)</th>
+                </tr>
+              </thead><tbody>`;
+
             data.historico.forEach(iter => {
                 html += `
                   <tr>
-                    <td>${iter.iteracao}</td>
-                    <td>${iter.a.toFixed(6)}</td>
-                    <td>${iter.b.toFixed(6)}</td>
-                    <td style="font-weight:bold; color: var(--barbie-pink);">${iter.xi.toFixed(6)}</td>
-                    <td>${iter.fxi.toExponential(2)}</td>
-                    <td>${(iter.erro_rel * 100).toFixed(4)}%</td>
+                    <td>${iter.iteracao !== undefined ? iter.iteracao : '-'}</td>
+                    <td>${fmtNumber(iter.a)}</td>
+                    <td>${fmtNumber(iter.b)}</td>
+                    <td style="font-weight:bold; color: var(--barbie-pink);">${fmtNumber(iter.xi)}</td>
+                    <td>${fmtF(iter.fa)}</td>
+                    <td>${fmtF(iter.fb)}</td>
+                    <td>${fmtF(iter.fxi)}</td>
+                    <td>${fmtPercent(iter.erro_rel)}</td>
                   </tr>
                 `;
             });
+
             html += `</tbody></table></div>`;
         }
     }
@@ -293,3 +315,4 @@ document.addEventListener('DOMContentLoaded', () => {
     labelA.textContent = 'a (Lim. Inferior)';
     labelB.textContent = 'b (Lim. Superior)';
 });
+// ...existing code...

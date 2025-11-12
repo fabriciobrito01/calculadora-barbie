@@ -192,12 +192,15 @@ def calcular():
 
     if metodo == "falsa_posicao":
         res = falsa_posicao(data)
+        print(res)
         res['metodo_nome'] = "Falsa Posição"
     elif metodo == "secante":
         res = secante(data)
+        print(res)
         res['metodo_nome'] = "Secante"
     elif metodo == "gauss":
         res = gauss_elimination(data)
+        print(res)
         res['metodo_nome'] = "Eliminação de Gauss"
     else:
         return jsonify({"erro": "Método desconhecido."}), 400
