@@ -74,8 +74,8 @@ def secante(data):
     """ Processa dados para Secante """
     try:
         expr_str = data.get("funcao")
-        x0 = float(data.get("a")) # JS envia 'a' como x0
-        x1 = float(data.get("b")) # JS envia 'b' como x1
+        x0 = float(data.get("a"))
+        x1 = float(data.get("b"))
         tol = float(eval(str(data.get("tol")).replace('^', '**'), {"__builtins__": None}, {}))
         max_iter = int(data.get("max_iter"))
         
@@ -140,12 +140,10 @@ def gauss_elimination(data):
                 det *= -1
             det *= A[i][i]
             pivot_val = A[i][i]
-            # Normaliza a linha do pivô
             if abs(pivot_val) > 1e-12:
                 for k in range(i, m): A[i][k] /= pivot_val
-            # Eliminação
             for j in range(n):
-                if i != j: # Modificado para Gauss-Jordan (mais simples)
+                if i != j:
                     factor = A[j][i]
                     for k in range(i, m):
                         A[j][k] -= factor * A[i][k]
@@ -165,14 +163,13 @@ def gauss_elimination(data):
                 break
         
         if tipo == "Única":
-             # Com Gauss-Jordan, a solução já está na última coluna
              vetor_solucao = [row[-1] for row in A]
 
         return {
             "matriz_escalonada": A,
             "tipo_solucao": tipo,
             "determinante": det,
-            "vetor_solucao": vetor_solucao # Envia o vetor X* pronto
+            "vetor_solucao": vetor_solucao
         }
     except Exception as e:
         return {'erro': f"Erro em Gauss: {str(e)}"}

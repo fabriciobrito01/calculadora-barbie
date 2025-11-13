@@ -30,24 +30,21 @@ body{
     background-size: contain;
     background-position: center top;
     background-repeat: no-repeat;
-    background-color: #fff0f7; /* cor de fundo caso sobre espaço */
+    background-color: #fff0f7;
   }
 }
 
-/* Ajustes finos do background para telas grandes (ex.: 1920x1080) */
 @media (min-width: 1440px) and (max-width: 1920px) {
   body {
-    /* diminui a largura da imagem para caber melhor em notebooks/monitores 1920 */
     background-size: 1400px auto;
     background-position: center top;
     background-repeat: no-repeat;
   }
 }
 
-/* comportamento para telas maiores que 1920 — evita esticar demais */
 @media (min-width: 1921px) {
   body {
-    background-size: 1600px auto; /* ajuste opcional para ultrawide/4K */
+    background-size: 1600px auto;
     background-position: center top;
   }
 }

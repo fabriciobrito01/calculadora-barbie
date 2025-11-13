@@ -1,4 +1,3 @@
-// ...existing code...
 // ============================================================
 // 💖 main.js — Calculadora Barbie de Raízes e Sistemas
 // ============================================================
@@ -74,13 +73,13 @@ function generateMatrixGrid(n, m) {
       td.style.padding = '4px';
       td.style.width = '1%';
       const input = document.createElement('input');
-      input.type = 'text'; // Alterado para 'text' para aceitar '.' e '-' facilmente
+      input.type = 'text';
       input.style.width = '60px';
       input.style.height = '26px';
       input.style.padding = '4px';
       input.style.fontSize = '0.9em';
       input.style.boxSizing = 'border-box';
-      input.placeholder = '0'; // Placeholder 0
+      input.placeholder = '0';
       input.dataset.row = i;
       input.dataset.col = j;
       td.appendChild(input);
@@ -111,21 +110,17 @@ function getMatrixFromGrid() {
       const inp = matrizGridDiv.querySelector(`input[data-row="${i}"][data-col="${j}"]`);
       let val = 0;
       if (inp) {
-        // Pega valor, troca vírgula por ponto, default para 0 se vazio
         const txt = inp.value.trim().replace(',', '.');
-        val = (txt === '' || txt === '-') ? 0 : parseFloat(txt); // Trata '-' sozinho como 0
-        if (isNaN(val)) return null; // Retorna null se 'abc' for digitado
+        val = (txt === '' || txt === '-') ? 0 : parseFloat(txt);
+        if (isNaN(val)) return null;
       }
       row.push(val);
     }
     rows.push(row);
   }
-  return rows; // Retorna null se houver erro de NaN
+  return rows;
 }
 
-
-// Gerar ao clicar (m = n + 1)
-// Esta lógica está CORRETA e é a única que deve gerar a grade.
 if (gerarBtn) {
   gerarBtn.addEventListener('click', () => {
     const n = parseInt(nRowsInput.value, 10) || 1;
@@ -138,7 +133,6 @@ if (gerarBtn) {
 // 🚀 Envio do formulário principal
 // ============================================================
 
-// Helpers de formatação seguros
 function fmtNumber(v, decimals = 6) {
   if (v === undefined || v === null || Number.isNaN(Number(v))) return '-';
   return Number(v).toFixed(decimals);
@@ -146,7 +140,6 @@ function fmtNumber(v, decimals = 6) {
 function fmtF(v) {
   if (v === undefined || v === null || Number.isNaN(Number(v))) return '-';
   const num = Number(v);
-  // Usa notação exponencial para valores muito grandes/pequenos, senão fixa em 6 casas
   if (num !== 0 && (Math.abs(num) < 1e-3 || Math.abs(num) >= 1e4)) {
     return num.toExponential(2);
   }
@@ -163,9 +156,8 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
   const metodo = inputMetodo.value;
   resultadoDiv.innerHTML = "⏳ Calculando...";
 
-  // Payload básico
   let payload = { metodo };
-  let valid = true; // Flag de validação
+  let valid = true;
 
   // =======================================================
   // 🧮 Caso 1: Eliminação de Gauss
@@ -247,7 +239,7 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
              html += `</tbody></table></div>`;
         }
         
-        html += `<h4>Matriz Escalonada (Gauss-Jordan):</h4>`;
+        html += `<h4>Matriz Escalonada: </h4>`;
         if (Array.isArray(data.matriz_escalonada)) {
             html += `<div class="tabela-gauss"><table><tbody>`;
             data.matriz_escalonada.forEach(linha => {
@@ -263,13 +255,12 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
           html += `<p class="raiz-destaque">Resultado: <strong>${Number(data.raiz).toFixed(8)}</strong></p>`;
         }
         if (data.historico && data.historico.length > 0) {
-            // Ajusta cabeçalhos conforme método (secante usa x_{i-1}, x_i, x_{i+1})
                 const headA = metodo === 'secante' ? 'x_{i-1}' : 'A';
                 const headB = metodo === 'secante' ? 'x_i' : 'B';
                 const headXi = metodo === 'secante' ? 'x_{i+1}' : 'Xi';
                 const headfA = metodo === 'secante' ? 'f(x_{i-1})' : 'f(A)';
                 const headfB = metodo === 'secante' ? 'f(x_i)' : 'f(B)';
-                const headfXi = metodo === 'secante' ? null : 'f(Xi)'; // omitido para secante
+                const headfXi = metodo === 'secante' ? null : 'f(Xi)';
 
                 html += `<div class="tabela-container"><table><thead>
                     <tr>
@@ -333,4 +324,3 @@ document.addEventListener('DOMContentLoaded', () => {
     labelA.textContent = 'a (Lim. Inferior)';
     labelB.textContent = 'b (Lim. Superior)';
 });
-// ...existing code...
