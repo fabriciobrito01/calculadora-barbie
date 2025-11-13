@@ -263,35 +263,53 @@ document.getElementById("calcForm").addEventListener("submit", async (e) => {
           html += `<p class="raiz-destaque">Resultado: <strong>${Number(data.raiz).toFixed(8)}</strong></p>`;
         }
         if (data.historico && data.historico.length > 0) {
-            html += `<div class="tabela-container"><table><thead>
-                <tr>
-                  <th>I</th>
-                  <th>A</th>
-                  <th>B</th>
-                  <th>Xi</th>
-                  <th>f(A)</th>
-                  <th>f(B)</th>
-                  <th>f(Xi)</th>
-                  <th>Erro Rel. (%)</th>
-                </tr>
-              </thead><tbody>`;
+            // Ajusta cabeçalhos conforme método (secante usa x_{i-1}, x_i, x_{i+1})
+                const headA = metodo === 'secante' ? 'x_{i-1}' : 'A';
+                const headB = metodo === 'secante' ? 'x_i' : 'B';
+                const headXi = metodo === 'secante' ? 'x_{i+1}' : 'Xi';
+                const headfA = metodo === 'secante' ? 'f(x_{i-1})' : 'f(A)';
+                const headfB = metodo === 'secante' ? 'f(x_i)' : 'f(B)';
+                const headfXi = metodo === 'secante' ? null : 'f(Xi)'; // omitido para secante
 
-            data.historico.forEach(iter => {
+                html += `<div class="tabela-container"><table><thead>
+                    <tr>
+                      <th>I</th>
+                      <th>${headA}</th>
+                      <th>${headB}</th>
+                      <th>${headXi}</th>
+                      <th>${headfA}</th>
+                      <th>${headfB}</th>`;
+
+                if (headfXi) html += `
+                      <th>${headfXi}</th>`;
+
                 html += `
-                  <tr>
-                    <td>${iter.iteracao !== undefined ? iter.iteracao : '-'}</td>
-                    <td>${fmtNumber(iter.a)}</td>
-                    <td>${fmtNumber(iter.b)}</td>
-                    <td style="font-weight:bold; color: var(--barbie-pink);">${fmtNumber(iter.xi)}</td>
-                    <td>${fmtF(iter.fa)}</td>
-                    <td>${fmtF(iter.fb)}</td>
-                    <td>${fmtF(iter.fxi)}</td>
-                    <td>${fmtPercent(iter.erro_rel)}</td>
-                  </tr>
-                `;
-            });
+                      <th>Erro Rel. (%)</th>
+                    </tr>
+                  </thead><tbody>`;
 
-            html += `</tbody></table></div>`;
+                data.historico.forEach(iter => {
+                    html += `
+                      <tr>
+                        <td>${iter.iteracao !== undefined ? iter.iteracao : '-'}</td>
+                        <td>${fmtNumber(iter.a)}</td>
+                        <td>${fmtNumber(iter.b)}</td>
+                        <td style="font-weight:bold; color: var(--barbie-pink);">${fmtNumber(iter.xi)}</td>
+                        <td>${fmtF(iter.fa)}</td>
+                        <td>${fmtF(iter.fb)}</td>`;
+
+                    if (headfXi) {
+                      html += `
+                        <td>${fmtF(iter.fxi)}</td>`;
+                    }
+
+                    html += `
+                        <td>${fmtPercent(iter.erro_rel)}</td>
+                      </tr>
+                    `;
+                });
+
+                html += `</tbody></table></div>`;
         }
     }
     

@@ -17,6 +17,7 @@ body{
   min-height:100vh;
   font-family: 'Poppins', sans-serif;
   background-image: url('/static/css/assets/fundo-barbie.png');
+  background-color: #b30d58;
   display:flex;
   align-items:center;
   justify-content:center;
